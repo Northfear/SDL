@@ -26,6 +26,10 @@
 #include "SDL_vitamessagebox.h"
 #include <psp2/message_dialog.h>
 
+#if SDL_VIDEO_VITA_VGL
+#include <vitaGL.h>
+#endif
+
 #if SDL_VIDEO_RENDER_VITA_GXM
 #include "../../render/vitagxm/SDL_render_vita_gxm_tools.h"
 #endif /* SDL_VIDEO_RENDER_VITA_GXM */
@@ -54,7 +58,7 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 
     SDL_zero(msgParam);
     SDL_snprintf(message, sizeof(message), "%s\r\n\r\n%s", messageboxdata->title, messageboxdata->message);
-
+	
     msgParam.msg = (const SceChar8*)message;
     SDL_zero(buttonParam);
 
@@ -79,7 +83,7 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     dispparam.size = sizeof(dispparam);
 
     init_result = sceMsgDialogInit(&param);
-
+#if !SDL_VIDEO_VITA_VGL
     // Setup display if it hasn't been initialized before
     if (init_result == SCE_COMMON_DIALOG_ERROR_GXM_IS_UNINITIALIZED)
     {
@@ -89,12 +93,16 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     }
 
     gxm_init_for_common_dialog();
-
+#endif
     if (init_result >= 0)
     {
         while (sceMsgDialogGetStatus() == SCE_COMMON_DIALOG_STATUS_RUNNING)
         {
-            gxm_swap_for_common_dialog();
+#if SDL_VIDEO_VITA_VGL
+            vglSwapBuffers(GL_TRUE);
+#else
+			gxm_swap_for_common_dialog();
+#endif
         }
         SDL_zero(dialog_result);
         sceMsgDialogGetResult(&dialog_result);
@@ -129,14 +137,14 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     {
         return -1;
     }
-
+#if !SDL_VIDEO_VITA_VGL
     gxm_term_for_common_dialog();
 
     if (setup_minimal_gxm)
     {
         gxm_minimal_term_for_common_dialog();
     }
-
+#endif
     return 0;
 #else
     (void)messageboxdata;
