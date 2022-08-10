@@ -2439,6 +2439,7 @@ elseif(VITA)
     set(SDL_VIDEO_RENDER_VITA_GXM 1)
 
     list(APPEND EXTRA_LIBS
+      SceIme_stub
       SceGxm_stub
       SceDisplay_stub
       SceCtrl_stub
