@@ -35,12 +35,6 @@
 // only one instance of vitaGL can run at the same time
 static int vgl_initialized = 0;
 
-
-void glPixelStorei(	GLenum pname, GLint param)
-{
-    //sceClibPrintf("glPixelStorei: %d\n", pname);
-}
-
 int
 VITA_GLES_LoadLibrary(_THIS, const char *path)
 {
@@ -82,11 +76,6 @@ VITA_GLES_GetProcAddress(_THIS, const char *proc)
     if (!proc || !*proc)
     {
         return NULL;
-    }
-
-    if (strcmp(proc, "glPixelStorei") == 0)
-    {
-        return &glPixelStorei;
     }
 
     return vglGetProcAddress(proc);
