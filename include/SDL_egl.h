@@ -26,6 +26,10 @@
  */
 #ifndef _MSC_VER
 
+#if defined(__vita__) || defined(__psp2__)
+#include <psp2/types.h>
+#endif
+
 #include <EGL/egl.h>
 
 #else /* _MSC_VER */

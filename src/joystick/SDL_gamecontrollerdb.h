@@ -69,6 +69,8 @@ static const char *s_ControllerMappings [] =
     "030000005e0400008e02000010010000,X360 Controller,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b8,leftshoulder:b4,leftstick:b9,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b10,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,",
     "030000005e0400001907000000010000,X360 Wireless Controller,a:b0,b:b1,back:b6,dpdown:b14,dpleft:b11,dpright:b12,dpup:b13,guide:b8,leftshoulder:b4,leftstick:b9,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b10,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,",
     "030000005e0400009102000007010000,X360 Wireless Controller,a:b0,b:b1,back:b6,dpdown:b14,dpleft:b11,dpright:b12,dpup:b13,guide:b8,leftshoulder:b4,leftstick:b9,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b10,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,",
+#elif defined(SDL_JOYSTICK_VITA)
+    "50535669746120436f6e74726f6c6c65,PSVita Controller,a:b2,b:b1,back:b10,dpdown:b6,dpleft:b7,dpright:b9,dpup:b8,leftshoulder:b4,leftstick:b14,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b15,righttrigger:a5,rightx:a2,righty:a3,start:b11,x:b3,y:b0,",
 #endif
     NULL
 };

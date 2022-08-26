@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -18,26 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#include "../../SDL_internal.h"
 
-/**
- *  \file SDL_opengles.h
- *
- *  This is a simple file to encapsulate the OpenGL ES 1.X API headers.
- */
-
-#ifdef __IPHONEOS__
-#include <OpenGLES/ES1/gl.h>
-#include <OpenGLES/ES1/glext.h>
-#elif defined(SDL_VIDEO_VITA_VGL)
-// kinda messed up with just <vitaGL.h>
-// just use standard headers
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#else
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#endif
-
-#ifndef APIENTRY
-#define APIENTRY
-#endif
+/* vi: set ts=4 sw=4 expandtab: */

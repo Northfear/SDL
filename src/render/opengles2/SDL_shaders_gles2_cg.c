@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED && !SDL_VIDEO_VITA_VGL && !SDL_VIDEO_VITA_PIB
+#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED && (SDL_VIDEO_VITA_VGL || SDL_VIDEO_VITA_PIB)
 
 #include "SDL_video.h"
 #include "SDL_opengles2.h"
@@ -32,97 +32,94 @@
  *************************************************************************************************/
 
 static const Uint8 GLES2_VertexSrc_Default_[] = " \
-    uniform mat4 u_projection; \
-    attribute vec2 a_position; \
-    attribute vec2 a_texCoord; \
-    attribute float a_angle; \
-    attribute vec2 a_center; \
-    varying vec2 v_texCoord; \
+    uniform float4x4 u_projection; \
     \
-    void main() \
-    { \
+    void main(                                                                          \
+        float2 a_position, \
+        float2 a_texCoord, \
+        float a_angle, \
+        float2 a_center, \
+        float2 out v_texCoord : TEXCOORD0, \
+        float4 out gl_Position : POSITION, \
+        float out gl_PointSize : PSIZE \
+    ) { \
         float angle = radians(a_angle); \
         float c = cos(angle); \
         float s = sin(angle); \
-        mat2 rotationMatrix = mat2(c, -s, s, c); \
-        vec2 position = rotationMatrix * (a_position - a_center) + a_center; \
+        float2x2 rotationMatrix = float2x2(c, -s, s, c); \
+        float2 position = mul((a_position - a_center), rotationMatrix) + a_center; \
         v_texCoord = a_texCoord; \
-        gl_Position = u_projection * vec4(position, 0.0, 1.0);\
+        gl_Position = mul(float4(position, 0.0, 1.0), u_projection);\
         gl_PointSize = 1.0; \
     } \
 ";
 
 static const Uint8 GLES2_FragmentSrc_SolidSrc_[] = " \
-    precision mediump float; \
-    uniform vec4 u_color; \
+    uniform float4 u_color; \
     \
-    void main() \
+    float4 main() \
     { \
-        gl_FragColor = u_color; \
+        return u_color; \
     } \
 ";
 
 static const Uint8 GLES2_FragmentSrc_TextureABGRSrc_[] = " \
-    precision mediump float; \
     uniform sampler2D u_texture; \
-    uniform vec4 u_modulation; \
-    varying vec2 v_texCoord; \
+    uniform float4 u_modulation; \
     \
-    void main() \
+    float4 main(float2 v_texCoord : TEXCOORD0) \
     { \
-        gl_FragColor = texture2D(u_texture, v_texCoord); \
+        float4 gl_FragColor = tex2D(u_texture, v_texCoord); \
         gl_FragColor *= u_modulation; \
+        return gl_FragColor; \
     } \
 ";
 
 /* ARGB to ABGR conversion */
 static const Uint8 GLES2_FragmentSrc_TextureARGBSrc_[] = " \
-    precision mediump float; \
     uniform sampler2D u_texture; \
-    uniform vec4 u_modulation; \
-    varying vec2 v_texCoord; \
+    uniform float4 u_modulation; \
     \
-    void main() \
+    float4 main(float2 v_texCoord : TEXCOORD0) \
     { \
-        vec4 abgr = texture2D(u_texture, v_texCoord); \
-        gl_FragColor = abgr; \
+        float4 abgr = tex2D(u_texture, v_texCoord); \
+        float4 gl_FragColor = abgr; \
         gl_FragColor.r = abgr.b; \
         gl_FragColor.b = abgr.r; \
         gl_FragColor *= u_modulation; \
+         return gl_FragColor; \
     } \
 ";
 
 /* RGB to ABGR conversion */
 static const Uint8 GLES2_FragmentSrc_TextureRGBSrc_[] = " \
-    precision mediump float; \
     uniform sampler2D u_texture; \
-    uniform vec4 u_modulation; \
-    varying vec2 v_texCoord; \
+    uniform float4 u_modulation; \
     \
-    void main() \
+    float4 main(float2 v_texCoord : TEXCOORD0) \
     { \
-        vec4 abgr = texture2D(u_texture, v_texCoord); \
-        gl_FragColor = abgr; \
+        float4 abgr = tex2D(u_texture, v_texCoord); \
+        float4 gl_FragColor = abgr; \
         gl_FragColor.r = abgr.b; \
         gl_FragColor.b = abgr.r; \
         gl_FragColor.a = 1.0; \
         gl_FragColor *= u_modulation; \
+         return gl_FragColor; \
     } \
 ";
 
 /* BGR to ABGR conversion */
 static const Uint8 GLES2_FragmentSrc_TextureBGRSrc_[] = " \
-    precision mediump float; \
     uniform sampler2D u_texture; \
-    uniform vec4 u_modulation; \
-    varying vec2 v_texCoord; \
+    uniform float4 u_modulation; \
     \
-    void main() \
+    float4 main(float2 v_texCoord : TEXCOORD0) \
     { \
-        vec4 abgr = texture2D(u_texture, v_texCoord); \
-        gl_FragColor = abgr; \
+        float4 abgr = tex2D(u_texture, v_texCoord); \
+        float4 gl_FragColor = abgr; \
         gl_FragColor.a = 1.0; \
         gl_FragColor *= u_modulation; \
+         return gl_FragColor; \
     } \
 ";
 

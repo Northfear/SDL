@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -19,25 +19,27 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/**
- *  \file SDL_opengles.h
- *
- *  This is a simple file to encapsulate the OpenGL ES 1.X API headers.
- */
+#ifndef _SDL_vitaaudio_h
+#define _SDL_vitaaudio_h
 
-#ifdef __IPHONEOS__
-#include <OpenGLES/ES1/gl.h>
-#include <OpenGLES/ES1/glext.h>
-#elif defined(SDL_VIDEO_VITA_VGL)
-// kinda messed up with just <vitaGL.h>
-// just use standard headers
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#else
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#endif
+#include "../SDL_sysaudio.h"
 
-#ifndef APIENTRY
-#define APIENTRY
-#endif
+/* Hidden "this" pointer for the audio functions */
+#define _THIS   SDL_AudioDevice *this
+
+#define NUM_BUFFERS 2
+
+struct SDL_PrivateAudioData {
+    /* The hardware input/output port. */
+    int     port;
+    /* The raw allocated mixing buffer. */
+    Uint8   *rawbuf;
+    /* Individual mixing buffers. */
+    Uint8   *mixbufs[NUM_BUFFERS];
+    /* Index of the next available mixing buffer. */
+    int     next_buffer;
+};
+
+#endif /* _SDL_vitaaudio_h */
+
+/* vi: set ts=4 sw=4 expandtab: */

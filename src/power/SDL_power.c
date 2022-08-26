@@ -38,6 +38,7 @@ SDL_bool SDL_GetPowerInfo_UIKit(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_Android(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_PSP(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_WinRT(SDL_PowerState *, int *, int *);
+SDL_bool SDL_GetPowerInfo_VITA(SDL_PowerState *, int *, int *);
 
 #ifndef SDL_POWER_DISABLED
 #ifdef SDL_POWER_HARDWIRED
@@ -80,6 +81,9 @@ static SDL_GetPowerInfo_Impl implementations[] = {
 #endif
 #ifdef SDL_POWER_WINRT          /* handles WinRT */
     SDL_GetPowerInfo_WinRT,
+#endif
+#ifdef SDL_POWER_VITA        /* handles PSVita. */
+    SDL_GetPowerInfo_VITA,
 #endif
 
 #ifdef SDL_POWER_HARDWIRED

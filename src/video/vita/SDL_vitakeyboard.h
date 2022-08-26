@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -19,25 +19,15 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/**
- *  \file SDL_opengles.h
- *
- *  This is a simple file to encapsulate the OpenGL ES 1.X API headers.
- */
+#ifndef _SDL_vitakeyboard_h
+#define _SDL_vitakeyboard_h
 
-#ifdef __IPHONEOS__
-#include <OpenGLES/ES1/gl.h>
-#include <OpenGLES/ES1/glext.h>
-#elif defined(SDL_VIDEO_VITA_VGL)
-// kinda messed up with just <vitaGL.h>
-// just use standard headers
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#else
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#endif
+#include "../../SDL_internal.h"
 
-#ifndef APIENTRY
-#define APIENTRY
-#endif
+/* Keyboard functions */
+extern void VITA_InitKeyboard(void);
+extern void VITA_PollKeyboard(void);
+
+#endif /* _SDL_vitakeyboard_h */
+
+/* vi: set ts=4 sw=4 expandtab: */

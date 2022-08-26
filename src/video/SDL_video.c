@@ -95,6 +95,9 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_DUMMY
     &DUMMY_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_VITA
+    &VITA_bootstrap,
+#endif
     NULL
 };
 
@@ -3225,6 +3228,9 @@ SDL_IsScreenKeyboardShown(SDL_Window *window)
 #if SDL_VIDEO_DRIVER_X11
 #include "x11/SDL_x11messagebox.h"
 #endif
+#if SDL_VIDEO_DRIVER_VITA
+#include "vita/SDL_vitamessagebox.h"
+#endif
 
 static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
 {
@@ -3293,6 +3299,12 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     if (retval == -1 &&
         SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11) &&
         X11_ShowMessageBox(messageboxdata, buttonid) == 0) {
+        retval = 0;
+    }
+#endif
+#if SDL_VIDEO_DRIVER_VITA
+    if (retval == -1 &&
+        VITA_ShowMessageBox(messageboxdata, buttonid) == 0) {
         retval = 0;
     }
 #endif

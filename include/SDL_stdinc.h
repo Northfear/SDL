@@ -196,7 +196,9 @@ typedef enum
     DUMMY_ENUM_VALUE
 } SDL_DUMMY_ENUM;
 
+#if !defined(__vita__)
 SDL_COMPILE_TIME_ASSERT(enum, sizeof(SDL_DUMMY_ENUM) == sizeof(int));
+#endif
 #endif
 #endif /* DOXYGEN_SHOULD_IGNORE_THIS */
 /** \endcond */
