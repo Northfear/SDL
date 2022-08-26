@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "random": "c",
-        "sdl_windows.h": "c"
-    }
-}

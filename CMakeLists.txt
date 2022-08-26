@@ -1162,8 +1162,9 @@ elseif(VITA)
 
       if(HAVE_VITAGL_H)
         set(HAVE_OPENGLES TRUE)
-        set(SDL_VIDEO_OPENGL_ES 1)
-        set(SDL_VIDEO_RENDER_OGL_ES 1)
+        # disabled gles1 to avoid problems with vitagl header
+        #set(SDL_VIDEO_OPENGL_ES 1)
+        #set(SDL_VIDEO_RENDER_OGL_ES 1)
         set(SDL_VIDEO_OPENGL_ES2 1)
         set(SDL_VIDEO_RENDER_OGL_ES2 1)
 

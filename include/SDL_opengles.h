@@ -28,11 +28,6 @@
 #ifdef __IPHONEOS__
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-#elif defined(SDL_VIDEO_VITA_VGL)
-// kinda messed up with just <vitaGL.h>
-// just use standard headers
-#include <GLES/gl.h>
-#include <GLES/glext.h>
 #else
 #include <GLES/gl.h>
 #include <GLES/glext.h>
