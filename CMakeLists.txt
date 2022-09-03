@@ -151,7 +151,7 @@ if(APPLE OR ARCH_64)
     set(OPT_DEF_SSEMATH ON)
   endif()
 endif()
-if(UNIX OR MINGW OR MSYS)
+if(UNIX OR MINGW OR MSYS OR VITA)
   set(OPT_DEF_LIBC ON)
 endif()
 
@@ -351,6 +351,13 @@ set(SDL_STATIC ON CACHE BOOL "Build a static version of the library")
 
 dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "SDL_STATIC" OFF)
 set_option(SDL_TEST            "Build the test directory" OFF)
+
+if(VITA)
+  set(SDL_SHARED OFF)
+  set_option(VIDEO_VITA_PIB  "Build with PSVita piglet gles2 support" OFF)
+  set_option(VIDEO_VITA_PVR  "Build with PSVita PVR gles/gles2 support" OFF)
+  set_option(VIDEO_VITA_VGL  "Build with PSVita vitaGL support" OFF)
+endif()
 
 # General source files
 file(GLOB SOURCE_FILES
@@ -709,7 +716,9 @@ if(LIBC)
         check_function_exists("${_FN}" ${_HAVEVAR})
       endforeach()
       set(CMAKE_REQUIRED_LIBRARIES)
-      list(APPEND EXTRA_LIBS m)
+      if(NOT VITA)
+        list(APPEND EXTRA_LIBS m)
+      endif()
     endif()
 
     check_library_exists(iconv iconv_open "" HAVE_LIBICONV)
@@ -1552,6 +1561,197 @@ elseif(HAIKU)
       set(HAVE_VIDEO_OPENGL TRUE)
     endif()
   endif()
+
+  CheckPTHREAD()
+
+elseif(VITA)
+  # SDL_spinlock.c Needs to be compiled in ARM mode.
+  check_c_compiler_flag(-marm HAVE_ARM_MODE)
+  if(HAVE_ARM_MODE)
+    set_source_files_properties(${SDL2_SOURCE_DIR}/src/atomic/SDL_spinlock.c PROPERTIES COMPILE_FLAGS -marm)
+  endif()
+
+  if(SDL_AUDIO)
+    set(SDL_AUDIO_DRIVER_VITA 1)
+    file(GLOB VITA_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_AUDIO_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+  endif()
+
+  if(SDL_FILESYSTEM)
+    set(SDL_FILESYSTEM_VITA 1)
+    file(GLOB VITA_FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_FILESYSTEM_SOURCES})
+    set(HAVE_SDL_FILESYSTEM TRUE)
+  endif()
+
+  if(SDL_JOYSTICK)
+    set(SDL_JOYSTICK_VITA 1)
+    file(GLOB VITA_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_JOYSTICK_SOURCES})
+    set(HAVE_SDL_JOYSTICK TRUE)
+  endif()
+
+  if(SDL_POWER)
+    set(SDL_POWER_VITA 1)
+    file(GLOB VITA_POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_POWER_SOURCES})
+    set(HAVE_SDL_POWER TRUE)
+  endif()
+
+  if(SDL_THREADS AND NOT PTHREADS)
+    set(SDL_THREAD_VITA 1)
+    list(APPEND SOURCE_FILES
+      ${SDL2_SOURCE_DIR}/src/thread/vita/SDL_sysmutex.c
+      ${SDL2_SOURCE_DIR}/src/thread/vita/SDL_syssem.c
+      ${SDL2_SOURCE_DIR}/src/thread/vita/SDL_systhread.c
+      ${SDL2_SOURCE_DIR}/src/thread/vita/SDL_syscond.c
+      ${SDL2_SOURCE_DIR}/src/thread/generic/SDL_systls.c)
+    set(HAVE_SDL_THREADS TRUE)
+  endif()
+
+  if(SDL_TIMERS)
+    set(SDL_TIMER_VITA 1)
+    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/vita/*.c)
+    list(APPEND SOURCE_FILES ${TIMER_SOURCES})
+    set(HAVE_SDL_TIMERS TRUE)
+  endif()
+
+  if(SDL_SENSOR)
+    set(SDL_SENSOR_VITA 1)
+    set(HAVE_SDL_SENSORS TRUE)
+    file(GLOB VITA_SENSOR_SOURCES ${SDL2_SOURCE_DIR}/src/sensor/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_SENSOR_SOURCES})
+  endif()
+
+  if(SDL_VIDEO)
+    set(SDL_VIDEO_DRIVER_VITA 1)
+    file(GLOB VITA_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/vita/*.c)
+    list(APPEND SOURCE_FILES ${VITA_VIDEO_SOURCES})
+    set(HAVE_SDL_VIDEO TRUE)
+
+    if(VIDEO_VITA_PIB)
+      check_include_file(pib.h HAVE_PIGS_IN_BLANKET_H)
+
+      if(HAVE_PIGS_IN_BLANKET_H)
+        set(SDL_VIDEO_OPENGL_ES2 1)
+        list(APPEND EXTRA_LIBS
+          pib
+        )
+        set(HAVE_VIDEO_VITA_PIB ON)
+        set(SDL_VIDEO_VITA_PIB 1)
+      else()
+        set(HAVE_VIDEO_VITA_PIB OFF)
+      endif()
+    endif()
+
+    if(VIDEO_VITA_VGL)
+      check_include_file(vitaGL.h HAVE_VITAGL_H)
+
+      if(HAVE_VITAGL_H)
+        set(HAVE_OPENGLES TRUE)
+        set(SDL_VIDEO_OPENGL_ES 1)
+        set(SDL_VIDEO_RENDER_OGL_ES 1)
+        set(SDL_VIDEO_OPENGL_ES2 1)
+        set(SDL_VIDEO_RENDER_OGL_ES2 1)
+
+        #set(HAVE_OPENGL TRUE)
+        #set(SDL_VIDEO_OPENGL 1)
+
+        list(APPEND EXTRA_LIBS
+          vitaGL
+          vitashark
+          mathneon
+        )
+        set(HAVE_VIDEO_VITA_VGL ON)
+        set(SDL_VIDEO_VITA_VGL 1)
+      else()
+        set(HAVE_VIDEO_VITA_VGL OFF)
+      endif()
+    endif()
+
+    if(VIDEO_VITA_PVR)
+      check_include_file(gpu_es4/psp2_pvr_hint.h HAVE_PVR_H)
+      if(HAVE_PVR_H)
+        add_definitions("-D__psp2__")
+        check_include_file(gl4esinit.h HAVE_GL4ES_H)
+        set(SDL_VIDEO_OPENGL_EGL 1)
+        set(HAVE_OPENGLES TRUE)
+        set(SDL_VIDEO_OPENGL_ES 1)
+        set(SDL_VIDEO_RENDER_OGL_ES 1)
+        set(SDL_VIDEO_OPENGL_ES2 1)
+        set(SDL_VIDEO_RENDER_OGL_ES2 1)
+
+        list(APPEND EXTRA_LIBS
+          libgpu_es4_ext_stub_weak
+          libIMGEGL_stub_weak
+        )
+
+        set(HAVE_VIDEO_VITA_PVR ON)
+        set(SDL_VIDEO_VITA_PVR 1)
+
+        if(HAVE_GL4ES_H)
+          set(HAVE_OPENGL TRUE)
+          set(SDL_VIDEO_OPENGL 1)
+          set(SDL_VIDEO_RENDER_OGL 1)
+          list(APPEND EXTRA_LIBS libGL_stub)
+          set(SDL_VIDEO_VITA_PVR_OGL 1)
+        endif()
+
+      else()
+        set(HAVE_VIDEO_VITA_PVR OFF)
+      endif()
+    endif()
+
+    list(APPEND EXTRA_LIBS
+      SceIme_stub
+      SceGxm_stub
+      SceDisplay_stub
+      SceCtrl_stub
+      SceAppMgr_stub
+      SceAppUtil_stub
+      SceAudio_stub
+      SceSysmodule_stub
+      SceDisplay_stub
+      SceCtrl_stub
+      SceIofilemgr_stub
+      SceCommonDialog_stub
+      SceTouch_stub
+      SceHid_stub
+      SceMotion_stub
+      ScePower_stub
+      SceProcessmgr_stub
+      m
+    )
+
+    if(HAVE_VIDEO_VITA_PIB)
+        list(PREPEND EXTRA_LIBS
+          pib
+          libScePiglet_stub
+          SceShaccCg_stub
+          taihen_stub
+        )
+    endif()
+
+    if(HAVE_VIDEO_VITA_VGL)
+        list(PREPEND EXTRA_LIBS
+          SceShaccCg_stub
+          SceKernelDmacMgr_stub
+        )
+    endif()
+
+    if(HAVE_VITA_PVR)
+        list(PREPEND EXTRA_LIBS
+          SceIme_stub
+        )
+    endif()
+  endif()
+
+  add_definitions("-D__VITA__")
+  add_definitions("-Dmemcpy=sceClibMemcpy")
+  add_definitions("-Dmemcpy=sceClibMemcpy")
+  add_definitions("-Dmemmove=sceClibMemmove")
+  add_definitions("-Dmemcmp=sceClibMemcmp")
 
   CheckPTHREAD()
 endif()

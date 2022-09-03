@@ -39,6 +39,9 @@ static SDL_SensorDriver *SDL_sensor_drivers[] = {
 #ifdef SDL_SENSOR_COREMOTION
     &SDL_COREMOTION_SensorDriver,
 #endif
+#if defined(SDL_SENSOR_VITA)
+    &SDL_VITA_SensorDriver
+#endif
 #if defined(SDL_SENSOR_DUMMY) || defined(SDL_SENSOR_DISABLED)
     &SDL_DUMMY_SensorDriver
 #endif
@@ -174,7 +177,7 @@ SDL_SensorGetDeviceType(int device_index)
     return type;
 }
 
-SDL_SensorType
+int
 SDL_SensorGetDeviceNonPortableType(int device_index)
 {
     SDL_SensorDriver *driver;

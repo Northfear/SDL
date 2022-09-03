@@ -81,7 +81,7 @@
 #define DEFAULT_OGL_ES "libGLESv1_CM.so.1"
 #endif /* SDL_VIDEO_DRIVER_RPI */
 
-#ifdef SDL_VIDEO_STATIC_ANGLE
+#if defined(SDL_VIDEO_STATIC_ANGLE) || defined(SDL_VIDEO_DRIVER_VITA)
 #define LOAD_FUNC(NAME) \
 _this->egl_data->NAME = (void *)NAME;
 #else
@@ -222,12 +222,14 @@ SDL_EGL_GetProcAddress(_THIS, const char *proc)
     }
 #endif
     
+#if !defined(SDL_VIDEO_DRIVER_VITA)
     retval = SDL_LoadFunction(_this->egl_data->egl_dll_handle, proc);
     if (!retval && SDL_strlen(proc) <= 1022) {
         procname[0] = '_';
         SDL_strlcpy(procname + 1, proc, 1022);
         retval = SDL_LoadFunction(_this->egl_data->egl_dll_handle, procname);
     }
+#endif
     return retval;
 }
 
@@ -292,7 +294,7 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
     }
 #endif
 
-#ifndef SDL_VIDEO_STATIC_ANGLE
+#if !defined(SDL_VIDEO_STATIC_ANGLE) && !defined(SDL_VIDEO_DRIVER_VITA)
     /* A funny thing, loading EGL.so first does not work on the Raspberry, so we load libGL* first */
     path = SDL_getenv("SDL_VIDEO_GL_DRIVER");
     if (path != NULL) {
@@ -372,6 +374,9 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
 #endif
 
     _this->egl_data->dll_handle = dll_handle;
+#if SDL_VIDEO_DRIVER_VITA
+    _this->egl_data->egl_dll_handle = egl_dll_handle;
+#endif
 
     /* Load new function pointers */
     LOAD_FUNC(eglGetDisplay);
@@ -408,13 +413,15 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
 
     _this->egl_data->egl_version_major = egl_version_major;
     _this->egl_data->egl_version_minor = egl_version_minor;
-
+#if !defined(SDL_VIDEO_DRIVER_VITA)
     if (egl_version_major == 1 && egl_version_minor == 5) {
         LOAD_FUNC(eglGetPlatformDisplay);
     }
+#endif
 
     _this->egl_data->egl_display = EGL_NO_DISPLAY;
 #if !defined(__WINRT__)
+#if !defined(SDL_VIDEO_DRIVER_VITA)
     if (platform) {
         if (egl_version_major == 1 && egl_version_minor == 5) {
             _this->egl_data->egl_display = _this->egl_data->eglGetPlatformDisplay(platform, (void *)(size_t)native_display, NULL);
@@ -427,6 +434,7 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
             }
         }
     }
+#endif
     /* Try the implementation-specific eglGetDisplay even if eglGetPlatformDisplay fails */
     if (_this->egl_data->egl_display == EGL_NO_DISPLAY) {
         _this->egl_data->egl_display = _this->egl_data->eglGetDisplay(native_display);

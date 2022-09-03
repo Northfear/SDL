@@ -350,6 +350,8 @@ CPU_haveNEON(void)
     return 0;  /* disabled or not an ARM CPU at all. */
 #elif __ARM_ARCH >= 8
     return 1;  /* ARMv8 always has non-optional NEON support. */
+#elif __VITA__
+	return 1;
 #elif defined(__APPLE__) && (__ARM_ARCH >= 7)
     /* (note that sysctlbyname("hw.optional.neon") doesn't work!) */
     return 1;  /* all Apple ARMv7 chips and later have NEON. */
