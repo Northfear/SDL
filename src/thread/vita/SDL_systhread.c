@@ -46,7 +46,7 @@
 
 static int ThreadEntry(SceSize args, void *argp)
 {
-    SDL_RunThread(*(SDL_Thread **) argp);
+    SDL_RunThread(*(void **) argp);
     return 0;
 }
 
