@@ -57,12 +57,12 @@
 #define DEFAULT_OGL_ES "libGLESv1_CM.so.1"
 #endif /* SDL_VIDEO_DRIVER_RPI */
 
-#if defined(SDL_VIDEO_STATIC_ANGLE) || defined(SDL_VIDEO_DRIVER_VITA)
+#if defined(SDL_VIDEO_DRIVER_VITA)
 #define LOAD_FUNC(NAME) \
-_this->egl_data->NAME = (void *)NAME;
+*((void**)&_this->egl_data->NAME) = (void *)NAME;
 #else
 #define LOAD_FUNC(NAME) \
-_this->egl_data->NAME = SDL_LoadFunction(_this->egl_data->egl_dll_handle, #NAME); \
+*((void**)&_this->egl_data->NAME) = SDL_LoadFunction(_this->egl_data->dll_handle, #NAME); \
 if (!_this->egl_data->NAME) \
 { \
     return SDL_SetError("Could not retrieve EGL function " #NAME); \
@@ -398,7 +398,7 @@ SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
                                           _this->egl_data->egl_config,
                                           share_context, NULL);
     }
-    
+
     if (egl_context == EGL_NO_CONTEXT) {
         SDL_SetError("Could not create EGL context");
         return NULL;
