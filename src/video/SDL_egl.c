@@ -68,12 +68,17 @@
 #define DEFAULT_OGL_ES "libGLESv1_CM.so.1"
 #endif /* SDL_VIDEO_DRIVER_RPI */
 
+#if defined(SDL_VIDEO_DRIVER_VITA)
+#define LOAD_FUNC(NAME) \
+_this->egl_data->NAME = (void *)NAME;
+#else
 #define LOAD_FUNC(NAME) \
 _this->egl_data->NAME = SDL_LoadFunction(_this->egl_data->dll_handle, #NAME); \
 if (!_this->egl_data->NAME) \
 { \
     return SDL_SetError("Could not retrieve EGL function " #NAME); \
 }
+#endif
     
 /* EGL implementation of SDL OpenGL ES support */
 #ifdef EGL_KHR_create_context        
@@ -124,13 +129,15 @@ SDL_EGL_GetProcAddress(_THIS, const char *proc)
         }
     }
 #endif
-    
+
+#if !defined(SDL_VIDEO_DRIVER_VITA)
     retval = SDL_LoadFunction(_this->egl_data->egl_dll_handle, proc);
     if (!retval && SDL_strlen(proc) <= 1022) {
         procname[0] = '_';
         SDL_strlcpy(procname + 1, proc, 1022);
         retval = SDL_LoadFunction(_this->egl_data->egl_dll_handle, procname);
     }
+#endif
     return retval;
 }
 
@@ -189,6 +196,7 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
     }
 #endif
 
+#if !defined(SDL_VIDEO_DRIVER_VITA)
     /* A funny thing, loading EGL.so first does not work on the Raspberry, so we load libGL* first */
     path = SDL_getenv("SDL_VIDEO_GL_DRIVER");
     if (path != NULL) {
@@ -244,8 +252,12 @@ SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_displa
         }
         SDL_ClearError();
     }
+#endif
 
     _this->egl_data->dll_handle = dll_handle;
+#if SDL_VIDEO_DRIVER_VITA
+    _this->egl_data->egl_dll_handle = egl_dll_handle;
+#endif
 
     /* Load new function pointers */
     LOAD_FUNC(eglGetDisplay);

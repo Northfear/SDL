@@ -70,6 +70,7 @@ extern AudioBootStrap ANDROIDAUD_bootstrap;
 extern AudioBootStrap PSPAUD_bootstrap;
 extern AudioBootStrap SNDIO_bootstrap;
 extern AudioBootStrap EmscriptenAudio_bootstrap;
+extern AudioBootStrap VITAAUD_bootstrap;
 
 
 /* Available audio drivers */
@@ -142,6 +143,9 @@ static const AudioBootStrap *const bootstrap[] = {
 #endif
 #if SDL_AUDIO_DRIVER_EMSCRIPTEN
     &EmscriptenAudio_bootstrap,
+#endif
+#if SDL_AUDIO_DRIVER_VITA
+    &VITAAUD_bootstrap,
 #endif
     NULL
 };

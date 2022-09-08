@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED
+#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED && !SDL_VIDEO_VITA_VGL && !SDL_VIDEO_VITA_PIB
 
 #include "SDL_video.h"
 #include "SDL_opengles2.h"
