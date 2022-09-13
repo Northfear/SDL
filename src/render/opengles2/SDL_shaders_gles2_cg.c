@@ -35,15 +35,14 @@ static const Uint8 GLES2_VertexSrc_Default_[] = " \
     void main( \
         float2 a_position, \
         float2 a_texCoord, \
-        float a_angle, \
+        float2 a_angle, \
         float2 a_center, \
         uniform float4x4 u_projection, \
         float4 out v_position : POSITION, \
         float2 out v_texCoord : TEXCOORD0 \
     ) { \
-        float angle = radians(a_angle); \
-        float c = cos(angle); \
-        float s = sin(angle); \
+        float s = a_angle[0]; \
+        float c = a_angle[1] + 1.0; \
         float2x2 rotationMatrix = float2x2(c, -s, s, c); \
         float2 position = mul((a_position - a_center), rotationMatrix) + a_center; \
         v_texCoord = a_texCoord; \
