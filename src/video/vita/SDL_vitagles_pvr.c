@@ -65,6 +65,8 @@ VITA_GLES_LoadLibrary(_THIS, const char *path)
         SDL_snprintf(hint.szGLES2, MAX_PATH, "%s/%s", default_path, "libGLESv2.suprx");
         SDL_snprintf(hint.szWindowSystem, MAX_PATH, "%s/%s", default_path, "libpvrPSP2_WSEGL.suprx");
 
+        hint.ui32SwTexOpCleanupDelay = 50000;   // 1000000 default
+
         PVRSRVCreateVirtualAppHint(&hint);
     }
 
