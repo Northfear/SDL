@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <psp2/kernel/modulemgr.h>
+#include <psp2/kernel/sysmem.h>
 #include <gpu_es4/psp2_pvr_hint.h>
 
 #include "SDL_error.h"
@@ -33,11 +34,15 @@
 #include "SDL_vitagles_pvr_c.h"
 
 #define MAX_PATH 256 // vita limits are somehow wrong
+#define PARAM_BUFFER_SIZE 2 * 1024 * 1024
+#define DRIVER_MEMORY_SIZE 4 * 1024 * 1024
 
 int
 VITA_GLES_LoadLibrary(_THIS, const char *path)
 {
     PVRSRV_PSP2_APPHINT hint;
+    SceKernelFreeMemorySizeInfo info;
+    size_t cdram_threshold;
     char* override = SDL_getenv("VITA_MODULE_PATH");
     char* skip_init = SDL_getenv("VITA_PVR_SKIP_INIT");
     char* default_path = "app0:module";
@@ -65,7 +70,13 @@ VITA_GLES_LoadLibrary(_THIS, const char *path)
         SDL_snprintf(hint.szGLES2, MAX_PATH, "%s/%s", default_path, "libGLESv2.suprx");
         SDL_snprintf(hint.szWindowSystem, MAX_PATH, "%s/%s", default_path, "libpvrPSP2_WSEGL.suprx");
 
+        info.size = sizeof(SceKernelFreeMemorySizeInfo);
+        sceKernelGetFreeMemorySize(&info);
+        cdram_threshold = DRIVER_MEMORY_SIZE + PARAM_BUFFER_SIZE;
+
         hint.ui32SwTexOpCleanupDelay = 50000;   // 1000000 default
+        hint.ui32ParamBufferSize = PARAM_BUFFER_SIZE;
+        hint.ui32CDRAMTexHeapSize = info.size_cdram > cdram_threshold ? info.size_cdram - cdram_threshold : 256 * 1024;
 
         PVRSRVCreateVirtualAppHint(&hint);
     }
