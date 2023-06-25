@@ -1649,6 +1649,7 @@ elseif(VITA)
       check_include_file(vitaGL.h HAVE_VITAGL_H)
 
       if(HAVE_VITAGL_H)
+        set(SDL_VIDEO_OPENGL_EGL 0)
         set(HAVE_OPENGLES TRUE)
         set(SDL_VIDEO_OPENGL_ES 1)
         set(SDL_VIDEO_RENDER_OGL_ES 1)

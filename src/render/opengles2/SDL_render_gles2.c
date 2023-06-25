@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED && !SDL_VIDEO_VITA_VGL && !SDL_VIDEO_VITA_PIB
+#if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED
 
 #include "SDL_assert.h"
 #include "SDL_hints.h"
