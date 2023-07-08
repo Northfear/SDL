@@ -495,6 +495,9 @@ GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, GLenum shader_t
     GLuint id;
     GLint compileSuccessful = GL_FALSE;
     const char *shader_src = (char *)GLES2_GetShader(type);
+#if defined(SDL_VIDEO_VITA_VGL)
+	char *has_glsl_translator = SDL_getenv("VITA_USE_GLSL_TRANSLATOR");
+#endif
 
     if (!shader_src) {
         SDL_SetError("No shader src");
@@ -503,7 +506,12 @@ GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, GLenum shader_t
 
     /* Compile */
     id = data->glCreateShader(shader_type);
-    data->glShaderSource(id, 1, &shader_src, NULL);
+#if defined(SDL_VIDEO_VITA_VGL)
+	if (has_glsl_translator)
+		vglCgShaderSource(id, 1, &shader_src, NULL);
+	else
+#endif
+		data->glShaderSource(id, 1, &shader_src, NULL);
     data->glCompileShader(id);
     data->glGetShaderiv(id, GL_COMPILE_STATUS, &compileSuccessful);
 
