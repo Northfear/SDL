@@ -60,6 +60,7 @@
 
 SDL_Window *Vita_Window;
 SceWChar16 libime_out[SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1];
+SceUInt32 libime_work[SCE_IME_WORK_BUFFER_SIZE / sizeof(SceInt32)];
 char libime_initval[8] = { 1 };
 SceImeCaret caret_rev;
 
@@ -493,7 +494,6 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
 {
     SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
     SceInt32 res;
-    SceUInt32 libime_work[SCE_IME_WORK_BUFFER_SIZE / sizeof(SceInt32)];
     SceImeParam param;
 
     sceImeParamInit(&param);
